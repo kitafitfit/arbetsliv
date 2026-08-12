@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Risk Instrument</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#101815;
+    --panel:#16211D;
+    --panel-2:#1B2823;
+    --hairline:#26362F;
+    --ink:#EAF2ED;
+    --ink-muted:#8FA69B;
+    --ink-faint:#5E7369;
+    --green:#5FC98D;
+    --amber:#E3A857;
+    --rust:#D1624A;
+    --lake:#6FA8C9;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);}
+  body{
+    background-image:
+      linear-gradient(var(--hairline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-attachment: fixed;
+    background-color: var(--bg);
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:36px 20px 80px;}
+  header.hero{padding:8px 4px 28px;border-bottom:1px solid var(--hairline);margin-bottom:28px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--lake);margin:0 0 10px;}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,4vw,42px);margin:0 0 10px;letter-spacing:-0.01em;}
+  .sub{color:var(--ink-muted);font-size:15px;line-height:1.55;max-width:620px;margin:0;}
+
+  .grid{display:grid;grid-template-columns:1fr 400px;gap:24px;align-items:start;}
+  @media (max-width:920px){ .grid{grid-template-columns:1fr;} .readout{position:static !important;} }
+
+  .panel{background:var(--panel);border:1px solid var(--hairline);border-radius:3px;}
+  .block{padding:22px 24px;border-bottom:1px solid var(--hairline);}
+  .block:last-child{border-bottom:none;}
+  .block h2{font-family:var(--serif);font-size:18px;font-weight:600;margin:0 0 4px;}
+  .block .desc{color:var(--ink-muted);font-size:13px;line-height:1.5;margin:0 0 16px;}
+
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-muted);margin-bottom:6px;}
+  select, input[type=number], input[type=range]{
+    font-family:var(--sans);font-size:14px;color:var(--ink);
+    background:var(--panel-2);border:1px solid var(--hairline);border-radius:2px;
+    padding:8px 10px;width:100%;
+  }
+  select:focus, input:focus{outline:1px solid var(--lake);outline-offset:0;}
+  .lr-row{display:grid;grid-template-columns:1fr 84px;gap:8px;align-items:end;}
+  .lr-row .lr-num{text-align:center;font-family:var(--mono);font-size:13px;}
+  .lr-cap{font-size:10.5px;color:var(--ink-faint);margin-top:4px;font-family:var(--mono);}
+
+  .evidence-group{margin-bottom:20px;}
+  .evidence-group:last-child{margin-bottom:0;}
+  .group-title{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;padding-top:2px;}
+  .group-note{font-size:12px;color:var(--ink-faint);font-style:italic;margin:-4px 0 12px;}
+
+  .readout{position:sticky;top:20px;}
+  .gauge-block{padding:26px 24px 10px;text-align:center;}
+  .gauge-num{font-family:var(--mono);font-weight:600;font-size:44px;line-height:1;margin-top:-108px;}
+  .gauge-label{font-size:12px;color:var(--ink-muted);margin-top:4px;}
+  .gauge-caption{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:10px;}
+
+  .ledger{padding:18px 24px 22px;}
+  .ledger h3{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 12px;}
+  .ledger-line{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:12.5px;padding:4px 0;color:var(--ink-muted);}
+  .ledger-line .val{color:var(--ink);}
+  .ledger-rule{border-top:1px dashed var(--hairline);margin:8px 0;}
+  .ledger-total{display:flex;justify-content:space-between;font-family:var(--mono);font-size:14px;font-weight:600;padding-top:4px;}
+  .ledger-empty{color:var(--ink-faint);font-size:12px;font-family:var(--mono);}
+
+  .decision{padding:20px 24px 22px;}
+  .decision h3{font-family:var(--serif);font-size:16px;margin:0 0 12px;}
+  .verdict{font-size:14px;line-height:1.5;padding:12px 14px;border-radius:2px;border:1px solid var(--hairline);margin-bottom:14px;}
+  .verdict.green{border-color:#2c4536;background:rgba(95,201,141,0.08);}
+  .verdict.amber{border-color:#4a3d24;background:rgba(227,168,87,0.08);}
+  .verdict.rust{border-color:#4a2b24;background:rgba(209,98,74,0.08);}
+  .bar-track{position:relative;height:10px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:5px;margin:16px 0 6px;}
+  .bar-fill{position:absolute;top:0;left:0;height:100%;border-radius:5px;background:var(--lake);}
+  .bar-thresh{position:absolute;top:-4px;width:2px;height:18px;background:var(--ink);}
+  .bar-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);}
+  .dnums{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .dnum{font-family:var(--mono);font-size:12px;color:var(--ink-muted);}
+  .dnum b{display:block;color:var(--ink);font-size:15px;font-weight:600;margin-top:2px;}
+
+  .history{padding:18px 24px 24px;}
+  .history h3{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 12px;}
+  .hist-row{display:flex;gap:10px;align-items:center;}
+  .hist-list{margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--ink-muted);}
+  .hist-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--hairline);}
+  .btn{font-family:var(--sans);font-size:12.5px;font-weight:500;padding:8px 14px;border-radius:2px;border:1px solid var(--hairline);background:var(--panel-2);color:var(--ink);cursor:pointer;}
+  .btn:hover{border-color:var(--lake);color:var(--lake);}
+  .btn.ghost{background:transparent;color:var(--ink-faint);}
+  .btn.ghost:hover{color:var(--rust);border-color:var(--rust);}
+
+  footer.note{margin-top:28px;padding:16px 20px;border:1px dashed var(--hairline);border-radius:3px;color:var(--ink-faint);font-size:12px;line-height:1.6;}
+  footer.note b{color:var(--ink-muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">Bayesian Career Risk Instrument</p>
+    <h1>Odds, updated as evidence arrives.</h1>
+    <p class="sub">Set a base rate from your situation, then weigh each signal by how much more likely it'd show up if a layoff were actually coming. The instrument multiplies the odds and tells you where you stand — and roughly when the math favors moving.</p>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: INPUTS -->
+    <div class="inputs-col">
+
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="block">
+          <h2>1 — Your profile</h2>
+          <p class="desc">Sets the prior: your starting probability before any current evidence. Defaults are illustrative anchors, not researched statistics — adjust the numbers on the right to match what you actually know.</p>
+
+          <div class="field">
+            <label for="industry">Industry</label>
+            <select id="industry"></select>
+          </div>
+          <div class="field lr-row">
+            <div>
+              <label for="stage">Company stage / ownership</label>
+              <select id="stage"></select>
+            </div>
+            <div><input type="number" id="stage-lr" class="lr-num" step="0.05"></div>
+          </div>
+          <div class="field lr-row">
+            <div>
+              <label for="size">Company size</label>
+              <select id="size"></select>
+            </div>
+            <div><input type="number" id="size-lr" class="lr-num" step="0.05"></div>
+          </div>
+          <div class="field lr-row">
+            <div>
+              <label for="func">Your function</label>
+              <select id="func"></select>
+            </div>
+            <div><input type="number" id="func-lr" class="lr-num" step="0.05"></div>
+          </div>
+          <div class="field lr-row">
+            <div>
+              <label for="tenure">Your tenure</label>
+              <select id="tenure"></select>
+            </div>
+            <div><input type="number" id="tenure-lr" class="lr-num" step="0.05"></div>
+          </div>
+          <div class="field lr-row">
+            <div>
+              <label for="country">Country / labor regime</label>
+              <select id="country"></select>
+            </div>
+            <div><input type="number" id="country-lr" class="lr-num" step="0.05"></div>
+          </div>
+          <p class="lr-cap">right column = log-odds multiplier applied to the base rate — 1.0 changes nothing</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="block">
+          <h2>2 — Current evidence</h2>
+          <p class="desc">Leave anything at its neutral option if it doesn't apply — neutral contributes nothing to the update. Numbers are likelihood ratios: how many times more likely you'd see this signal if layoffs were coming, versus not. Edit any of them.</p>
+          <div id="evidence-groups"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="block">
+          <h2>3 — Decision inputs</h2>
+          <p class="desc">Translates probability into a stay-or-go read, in months of income as the common unit.</p>
+          <div class="field">
+            <label for="horizon">Time window you're assessing (months) — <span id="horizon-val"></span></label>
+            <input type="range" id="horizon" min="3" max="36" step="1">
+          </div>
+          <div class="field">
+            <label for="searchDuration">Expected job-search length if laid off (months)</label>
+            <input type="number" id="searchDuration" min="0" step="0.5">
+          </div>
+          <div class="field">
+            <label for="severance">Severance you'd receive (months of pay)</label>
+            <input type="number" id="severance" min="0" step="0.5">
+          </div>
+          <div class="field">
+            <label for="switchCost">Cost / risk of switching voluntarily now (months-equivalent — ramp-up risk, lost leverage, hassle)</label>
+            <input type="number" id="switchCost" min="0" step="0.25">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: READOUT -->
+    <div class="readout">
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="gauge-block">
+          <svg id="gauge" viewBox="0 0 220 190" width="100%" style="max-width:280px;">
+            <path id="gauge-track" fill="none" stroke="#24342E" stroke-width="14" stroke-linecap="round"></path>
+            <path id="gauge-progress" fill="none" stroke="#5FC98D" stroke-width="14" stroke-linecap="round"></path>
+            <line id="gauge-needle" stroke="#EAF2ED" stroke-width="2.5" stroke-linecap="round"></line>
+            <circle id="gauge-hub" r="5" fill="#EAF2ED"></circle>
+            <g id="gauge-ticks" font-family="IBM Plex Mono" font-size="9" fill="#5E7369"></g>
+          </svg>
+          <div class="gauge-num" id="gauge-num">—</div>
+          <div class="gauge-label">probability of layoff, scaled to your window</div>
+          <div class="gauge-caption" id="gauge-caption"></div>
+        </div>
+
+        <div class="ledger">
+          <h3>Odds ledger</h3>
+          <div id="ledger-body"></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="decision">
+          <h3>Read</h3>
+          <div id="verdict" class="verdict amber">—</div>
+          <div class="bar-track">
+            <div class="bar-fill" id="bar-fill"></div>
+            <div class="bar-thresh" id="bar-thresh"></div>
+          </div>
+          <div class="bar-labels"><span>0%</span><span>your risk vs. break-even switch threshold</span><span>100%</span></div>
+          <div class="dnums">
+            <div class="dnum">Expected cost of staying<b id="cost-stay">—</b></div>
+            <div class="dnum">Cost of switching now<b id="cost-switch">—</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="history">
+          <h3>History</h3>
+          <div class="hist-row">
+            <button class="btn" id="snapshot-btn">Save snapshot</button>
+            <button class="btn ghost" id="clear-hist-btn">Clear history</button>
+          </div>
+          <svg id="sparkline" viewBox="0 0 300 60" width="100%" height="60" style="margin-top:12px;display:none;">
+            <polyline id="spark-line" fill="none" stroke="#6FA8C9" stroke-width="2"></polyline>
+          </svg>
+          <div class="hist-list" id="hist-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="note">
+    <b>What this is and isn't.</b> This is a structured way to combine your own judgment calls, not a forecast. The starting probabilities and likelihood ratios are illustrative anchors — replace them with numbers you actually believe. Bayesian updating only helps if the inputs are honest; it can't correct for wishful thinking or motivated reasoning, especially on the personal-signals section. Revisit it as things change rather than treating any single reading as final.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const STORAGE_KEY = "career-risk-state-v1";
+
+  // ---------- config ----------
+  const industryOptions = [
+    {label:"Technology / Software", prob:0.35},
+    {label:"Finance / Banking", prob:0.22},
+    {label:"Healthcare", prob:0.15},
+    {label:"Retail / Consumer", prob:0.30},
+    {label:"Manufacturing / Industrial", prob:0.25},
+    {label:"Energy", prob:0.22},
+    {label:"Media / Entertainment", prob:0.35},
+    {label:"Government / Public sector", prob:0.08},
+    {label:"Other / not listed", prob:0.25},
+  ];
+  const stageOptions = [
+    {label:"Early-stage startup (pre Series B)", lr:1.6},
+    {label:"Growth-stage (Series B–D)", lr:1.3},
+    {label:"Late-stage / pre-IPO", lr:1.1},
+    {label:"Newly public (< 2 yrs)", lr:1.4},
+    {label:"Established public company", lr:1.0},
+    {label:"Private equity owned / recently acquired", lr:1.7},
+    {label:"Private, profitable, no external funding pressure", lr:0.7},
+    {label:"Government / public sector", lr:0.4},
+  ];
+  const sizeOptions = [
+    {label:"Under 100 employees", lr:1.4},
+    {label:"100 – 1,000", lr:1.15},
+    {label:"1,000 – 10,000", lr:1.0},
+    {label:"10,000+", lr:0.9},
+  ];
+  const funcOptions = [
+    {label:"Core product / engineering", lr:0.8},
+    {label:"Sales / revenue-generating", lr:0.85},
+    {label:"Core operations", lr:1.0},
+    {label:"Marketing / growth", lr:1.2},
+    {label:"Recruiting / People / HR generalist", lr:1.6},
+    {label:"Admin / back-office / support", lr:1.5},
+    {label:"New or experimental function", lr:1.5},
+  ];
+  const tenureOptions = [
+    {label:"Under 1 year", lr:1.3},
+    {label:"1 – 3 years", lr:1.0},
+    {label:"3 – 7 years", lr:0.9},
+    {label:"7+ years", lr:0.85},
+  ];
+  const countryOptions = [
+    {label:"— select —", lr:1.0},
+    {label:"United States (at-will)", lr:1.15},
+    {label:"UK / EU (statutory notice & severance)", lr:0.8},
+    {label:"Nordics (strong notice & seniority protections)", lr:0.7},
+    {label:"Other / not listed", lr:1.0},
+  ];
+
+  const evidenceConfig = [
+    {group:"Track record", items:[
+      {id:"companyHistory", label:"Company's own layoffs, past 2 yrs", options:[
+        {label:"No layoffs", lr:1.0},{label:"One round", lr:1.6},{label:"Multiple rounds", lr:2.5}]},
+      {id:"competitorHistory", label:"Competitor / sector layoffs", options:[
+        {label:"None reported", lr:1.0},{label:"Some peers cutting", lr:1.4},{label:"Broad sector-wide cuts", lr:1.9}]},
+    ]},
+    {group:"Current freezes", items:[
+      {id:"hiringFreeze", label:"Hiring freeze active", options:[{label:"No", lr:1.0},{label:"Yes", lr:1.7}]},
+      {id:"budgetFreeze", label:"Budget freeze active", options:[{label:"No", lr:1.0},{label:"Yes", lr:1.6}]},
+    ]},
+    {group:"Financial health", items:[
+      {id:"stockTrend", label:"Stock trend — public companies", options:[
+        {label:"Not applicable", lr:1.0},{label:"Rising", lr:0.6},{label:"Flat", lr:1.0},
+        {label:"Declining, under 20%", lr:1.5},{label:"Declining, over 20%, sustained", lr:2.4}]},
+      {id:"runway", label:"Runway — private companies", options:[
+        {label:"Not applicable", lr:1.0},{label:"Over 18 months / just raised", lr:0.7},
+        {label:"6–18 months", lr:1.2},{label:"Under 6 months", lr:2.8}]},
+    ]},
+    {group:"Organizational signals", items:[
+      {id:"execDepartures", label:"Executive departures, recent", options:[
+        {label:"None", lr:1.0},{label:"One", lr:1.3},{label:"Multiple", lr:1.9}]},
+      {id:"reorg", label:"Reorg announced", options:[{label:"No", lr:1.0},{label:"Yes", lr:1.5}]},
+      {id:"managerTurnover", label:"Manager turnover on your team", options:[{label:"No", lr:1.0},{label:"Yes", lr:1.3}]},
+      {id:"projectCancellations", label:"Project / product cancellations", options:[{label:"No", lr:1.0},{label:"Yes", lr:1.4}]},
+    ]},
+    {group:"Personal signals (optional)", note:"Easy to judge with bias — be honest, or leave neutral.", items:[
+      {id:"perfTrend", label:"Performance review trend", options:[
+        {label:"Improving", lr:0.6},{label:"Stable", lr:1.0},{label:"Declining", lr:1.8}]},
+      {id:"replaceability", label:"How easily your role is replaced", options:[
+        {label:"Hard to replace", lr:0.6},{label:"Somewhat replaceable", lr:1.0},{label:"Easily replaceable", lr:1.6}]},
+      {id:"managerRelationship", label:"Relationship with your manager", options:[
+        {label:"Strong advocate", lr:0.6},{label:"Neutral", lr:1.0},{label:"Strained", lr:1.6}]},
+    ]},
+  ];
+
+  // ---------- state ----------
+  let state = {
+    industry: null,
+    stage: 4, stageLR: stageOptions[4].lr,
+    size: 2, sizeLR: sizeOptions[2].lr,
+    func: 2, funcLR: funcOptions[2].lr,
+    tenure: 1, tenureLR: tenureOptions[1].lr,
+    country: 0, countryLR: countryOptions[0].lr,
+    evidence: {},
+    horizon: 36, searchDuration: 4, severance: 2, switchCost: 1,
+    history: []
+  };
+  evidenceConfig.forEach(g => g.items.forEach(it => {
+    state.evidence[it.id] = {idx: 0, lr: it.options[0].lr};
+  }));
+
+  // ---------- storage ----------
+  let saveTimer = null;
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try{ await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); }
+      catch(e){ console.error("save failed", e); }
+    }, 350);
+  }
+  async function loadState(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value){
+        const loaded = JSON.parse(res.value);
+        state = Object.assign(state, loaded);
+        if(!state.evidence) state.evidence = {};
+        evidenceConfig.forEach(g => g.items.forEach(it => {
+          if(!state.evidence[it.id]) state.evidence[it.id] = {idx:0, lr: it.options[0].lr};
+        }));
+      }
+    }catch(e){ /* no saved state yet */ }
+  }
+
+  // ---------- build inputs ----------
+  function fillSelect(sel, options, selectedIdx){
+    sel.innerHTML = "";
+    options.forEach((o,i) => {
+      const opt = document.createElement("option");
+      opt.value = i; opt.textContent = o.label;
+      if(i === selectedIdx) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  const industrySel = document.getElementById("industry");
+  industrySel.innerHTML = '<option value="-1">— select —</option>' +
+    industryOptions.map((o,i)=>`<option value="${i}">${o.label} (~${Math.round(o.prob*100)}%)</option>`).join("");
+  industrySel.value = state.industry === null ? -1 : state.industry;
+  industrySel.addEventListener("change", () => {
+    state.industry = industrySel.value === "-1" ? null : parseInt(industrySel.value);
+    compute(); scheduleSave();
+  });
+
+  function wireProfileSelect(selId, lrId, options, stateKey, lrKey){
+    const sel = document.getElementById(selId);
+    const lrInput = document.getElementById(lrId);
+    fillSelect(sel, options, state[stateKey]);
+    lrInput.value = state[lrKey];
+    sel.addEventListener("change", () => {
+      const i = parseInt(sel.value);
+      state[stateKey] = i;
+      state[lrKey] = options[i].lr;
+      lrInput.value = options[i].lr;
+      compute(); scheduleSave();
+    });
+    lrInput.addEventListener("input", () => {
+      const v = parseFloat(lrInput.value);
+      state[lrKey] = isNaN(v) ? 1 : v;
+      compute(); scheduleSave();
+    });
+  }
+  wireProfileSelect("stage","stage-lr",stageOptions,"stage","stageLR");
+  wireProfileSelect("size","size-lr",sizeOptions,"size","sizeLR");
+  wireProfileSelect("func","func-lr",funcOptions,"func","funcLR");
+  wireProfileSelect("tenure","tenure-lr",tenureOptions,"tenure","tenureLR");
+  wireProfileSelect("country","country-lr",countryOptions,"country","countryLR");
+
+  const evidenceContainer = document.getElementById("evidence-groups");
+  function buildEvidenceUI(){
+    evidenceContainer.innerHTML = "";
+    evidenceConfig.forEach(group => {
+      const gDiv = document.createElement("div");
+      gDiv.className = "evidence-group";
+      const gt = document.createElement("div");
+      gt.className = "group-title";
+      gt.textContent = group.group;
+      gDiv.appendChild(gt);
+      if(group.note){
+        const n = document.createElement("div");
+        n.className = "group-note";
+        n.textContent = group.note;
+        gDiv.appendChild(n);
+      }
+      group.items.forEach(item => {
+        const field = document.createElement("div");
+        field.className = "field lr-row";
+        field.style.marginBottom = "12px";
+        const left = document.createElement("div");
+        const label = document.createElement("label");
+        label.textContent = item.label;
+        label.setAttribute("for", "ev-"+item.id);
+        const sel = document.createElement("select");
+        sel.id = "ev-"+item.id;
+        item.options.forEach((o,i) => {
+          const opt = document.createElement("option");
+          opt.value = i; opt.textContent = o.label;
+          if(i === state.evidence[item.id].idx) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        left.appendChild(label); left.appendChild(sel);
+
+        const right = document.createElement("div");
+        const numIn = document.createElement("input");
+        numIn.type = "number"; numIn.step = "0.05"; numIn.className = "lr-num";
+        numIn.value = state.evidence[item.id].lr;
+        right.appendChild(numIn);
+
+        sel.addEventListener("change", () => {
+          const i = parseInt(sel.value);
+          state.evidence[item.id].idx = i;
+          state.evidence[item.id].lr = item.options[i].lr;
+          numIn.value = item.options[i].lr;
+          compute(); scheduleSave();
+        });
+        numIn.addEventListener("input", () => {
+          const v = parseFloat(numIn.value);
+          state.evidence[item.id].lr = isNaN(v) ? 1 : v;
+          compute(); scheduleSave();
+        });
+
+        field.appendChild(left); field.appendChild(right);
+        gDiv.appendChild(field);
+      });
+      evidenceContainer.appendChild(gDiv);
+    });
+  }
+
+  // decision inputs
+  const horizonEl = document.getElementById("horizon");
+  const horizonVal = document.getElementById("horizon-val");
+  const searchDurationEl = document.getElementById("searchDuration");
+  const severanceEl = document.getElementById("severance");
+  const switchCostEl = document.getElementById("switchCost");
+
+  function wireNumberOrRange(el, key, isRange){
+    el.addEventListener("input", () => {
+      const v = parseFloat(el.value);
+      state[key] = isNaN(v) ? 0 : v;
+      if(isRange) horizonVal.textContent = state[key] + " mo";
+      compute(); scheduleSave();
+    });
+  }
+  wireNumberOrRange(horizonEl, "horizon", true);
+  wireNumberOrRange(searchDurationEl, "searchDuration", false);
+  wireNumberOrRange(severanceEl, "severance", false);
+  wireNumberOrRange(switchCostEl, "switchCost", false);
+
+  function applyDecisionInputsToUI(){
+    horizonEl.value = state.horizon; horizonVal.textContent = state.horizon + " mo";
+    searchDurationEl.value = state.searchDuration;
+    severanceEl.value = state.severance;
+    switchCostEl.value = state.switchCost;
+  }
+
+  // ---------- gauge geometry ----------
+  const cx = 110, cy = 130, r = 82, startAngle = -225, endAngle = 45, sweep = 270;
+  function polar(angleDeg, radius){
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return {x: cx + radius*Math.cos(rad), y: cy + radius*Math.sin(rad)};
+  }
+  function describeArc(a0, a1, radius){
+    const s = polar(a1, radius), e = polar(a0, radius);
+    const largeArc = (a1 - a0) <= 180 ? "0" : "1";
+    return `M ${s.x} ${s.y} A ${radius} ${radius} 0 ${largeArc} 0 ${e.x} ${e.y}`;
+  }
+  document.getElementById("gauge-track").setAttribute("d", describeArc(startAngle, endAngle, r));
+  const ticksG = document.getElementById("gauge-ticks");
+  [0,0.25,0.5,0.75,1].forEach(f => {
+    const a = startAngle + sweep*f;
+    const p = polar(a, r + 16);
+    const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t.setAttribute("x", p.x); t.setAttribute("y", p.y);
+    t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle");
+    t.textContent = Math.round(f*100) + (f===0||f===1?"%":"");
+    ticksG.appendChild(t);
+  });
+
+  function updateGauge(fraction){
+    const clamped = Math.max(0, Math.min(1, fraction));
+    const a1 = startAngle + sweep*clamped;
+    document.getElementById("gauge-progress").setAttribute("d", describeArc(startAngle, Math.max(startAngle+0.01,a1), r));
+    let color = "#5FC98D";
+    if(clamped >= 0.45) color = "#D1624A";
+    else if(clamped >= 0.20) color = "#E3A857";
+    document.getElementById("gauge-progress").setAttribute("stroke", color);
+
+    const tip = polar(a1, r - 4);
+    const needle = document.getElementById("gauge-needle");
+    needle.setAttribute("x1", cx); needle.setAttribute("y1", cy);
+    needle.setAttribute("x2", tip.x); needle.setAttribute("y2", tip.y);
+    document.getElementById("gauge-hub").setAttribute("cx", cx);
+    document.getElementById("gauge-hub").setAttribute("cy", cy);
+
+    document.getElementById("gauge-num").textContent = Math.round(clamped*100) + "%";
+    document.getElementById("gauge-num").style.color = color;
+  }
+
+  // ---------- math ----------
+  function fmtOdds(o){
+    if(o >= 1) return o.toFixed(2) + " : 1";
+    return "1 : " + (1/o).toFixed(2);
+  }
+
+  function compute(){
+    const baseProb = state.industry === null ? 0.25 : industryOptions[state.industry].prob;
+    const baseOdds = baseProb/(1-baseProb);
+    let priorLogOdds = Math.log(baseOdds)
+      + Math.log(Math.max(0.01,state.stageLR))
+      + Math.log(Math.max(0.01,state.sizeLR))
+      + Math.log(Math.max(0.01,state.funcLR))
+      + Math.log(Math.max(0.01,state.tenureLR))
+      + Math.log(Math.max(0.01,state.countryLR));
+
+    let evidenceLogOdds = 0;
+    const ledgerRows = [];
+    evidenceConfig.forEach(g => g.items.forEach(it => {
+      const lr = Math.max(0.01, state.evidence[it.id].lr);
+      evidenceLogOdds += Math.log(lr);
+      if(Math.abs(lr - 1) > 0.001){
+        const optLabel = it.options[state.evidence[it.id].idx].label;
+        ledgerRows.push({label: it.label + " — " + optLabel, lr: lr});
+      }
+    }));
+
+    const posteriorLogOdds = priorLogOdds + evidenceLogOdds;
+    const posteriorOdds = Math.exp(posteriorLogOdds);
+    const posteriorProb3yr = posteriorOdds/(1+posteriorOdds);
+
+    // scale to horizon via constant hazard assumption
+    const monthlyHazard = 1 - Math.pow(1 - posteriorProb3yr, 1/36);
+    const horizonProb = 1 - Math.pow(1 - monthlyHazard, state.horizon);
+
+    updateGauge(horizonProb);
+    document.getElementById("gauge-caption").textContent =
+      `3-yr baseline read: ${Math.round(posteriorProb3yr*100)}%  ·  odds ${fmtOdds(posteriorOdds)}`;
+
+    // ledger
+    const lb = document.getElementById("ledger-body");
+    lb.innerHTML = "";
+    const priorLine = document.createElement("div");
+    priorLine.className = "ledger-line";
+    priorLine.innerHTML = `<span>Prior odds (profile-adjusted)</span><span class="val">${fmtOdds(Math.exp(priorLogOdds))}</span>`;
+    lb.appendChild(priorLine);
+    if(ledgerRows.length === 0){
+      const e = document.createElement("div");
+      e.className = "ledger-empty";
+      e.textContent = "no active evidence yet — everything's at neutral";
+      lb.appendChild(e);
+    } else {
+      ledgerRows.forEach(row => {
+        const line = document.createElement("div");
+        line.className = "ledger-line";
+        line.innerHTML = `<span>× ${row.label}</span><span class="val">${row.lr.toFixed(2)}</span>`;
+        lb.appendChild(line);
+      });
+    }
+    const rule = document.createElement("div"); rule.className = "ledger-rule"; lb.appendChild(rule);
+    const total = document.createElement("div");
+    total.className = "ledger-total";
+    total.innerHTML = `<span>Posterior odds</span><span>${fmtOdds(posteriorOdds)} → ${Math.round(posteriorProb3yr*100)}%</span>`;
+    lb.appendChild(total);
+
+    // decision layer
+    const uncovered = Math.max(0, state.searchDuration - state.severance);
+    const expectedCostStaying = horizonProb * uncovered;
+    const switchCost = Math.max(0, state.switchCost);
+    const verdictEl = document.getElementById("verdict");
+    const barFill = document.getElementById("bar-fill");
+    const barThresh = document.getElementById("bar-thresh");
+
+    document.getElementById("cost-stay").textContent = expectedCostStaying.toFixed(2) + " mo";
+    document.getElementById("cost-switch").textContent = switchCost.toFixed(2) + " mo";
+
+    if(uncovered === 0){
+      verdictEl.className = "verdict green";
+      verdictEl.textContent = "Your severance alone would cover your expected search time. Staying carries little downside risk by this model — the real question becomes upside, not risk.";
+      barFill.style.width = Math.round(horizonProb*100) + "%";
+      barThresh.style.left = "100%";
+    } else {
+      const threshold = switchCost / uncovered;
+      barFill.style.width = Math.round(Math.min(1,horizonProb)*100) + "%";
+      barThresh.style.left = Math.round(Math.min(1,threshold)*100) + "%";
+      if(horizonProb > threshold*1.15){
+        verdictEl.className = "verdict rust";
+        verdictEl.textContent = `Your estimated risk (${Math.round(horizonProb*100)}%) is meaningfully above the break-even switching threshold (${Math.round(threshold*100)}%). The risk-weighted math leans toward exploring or moving now, before a layoff forces the timing.`;
+      } else if(horizonProb < threshold*0.85){
+        verdictEl.className = "verdict green";
+        verdictEl.textContent = `Your estimated risk (${Math.round(horizonProb*100)}%) sits below the break-even threshold (${Math.round(threshold*100)}%). The math leans toward staying — the expected cost of waiting is lower than the cost of switching now.`;
+      } else {
+        verdictEl.className = "verdict amber";
+        verdictEl.textContent = `Your estimated risk (${Math.round(horizonProb*100)}%) is close to the break-even threshold (${Math.round(threshold*100)}%) — too near to call from the math alone. Weight it by how much you'd value optionality either way.`;
+      }
+    }
+
+    return {horizonProb, posteriorProb3yr};
+  }
+
+  // ---------- history ----------
+  const histList = document.getElementById("hist-list");
+  const sparkSvg = document.getElementById("sparkline");
+  const sparkLine = document.getElementById("spark-line");
+
+  function renderHistory(){
+    histList.innerHTML = "";
+    if(state.history.length === 0){
+      sparkSvg.style.display = "none";
+      const e = document.createElement("div");
+      e.style.color = "var(--ink-faint)"; e.style.fontSize="12px";
+      e.textContent = "no snapshots saved yet";
+      histList.appendChild(e);
+      return;
+    }
+    sparkSvg.style.display = "block";
+    const pts = state.history.map((h,i) => {
+      const x = state.history.length === 1 ? 150 : (i/(state.history.length-1))*300;
+      const y = 55 - h.p*50;
+      return `${x},${y}`;
+    }).join(" ");
+    sparkLine.setAttribute("points", pts);
+
+    state.history.slice().reverse().forEach(h => {
+      const row = document.createElement("div");
+      row.className = "hist-item";
+      const d = new Date(h.t);
+      row.innerHTML = `<span>${d.toLocaleDateString()}</span><span>${Math.round(h.p*100)}%</span>`;
+      histList.appendChild(row);
+    });
+  }
+
+  document.getElementById("snapshot-btn").addEventListener("click", () => {
+    const r = compute();
+    state.history.push({t: Date.now(), p: r.horizonProb});
+    if(state.history.length > 24) state.history = state.history.slice(-24);
+    renderHistory();
+    scheduleSave();
+  });
+  document.getElementById("clear-hist-btn").addEventListener("click", () => {
+    state.history = [];
+    renderHistory();
+    scheduleSave();
+  });
+
+  // ---------- init ----------
+  (async function init(){
+    await loadState();
+    industrySel.value = state.industry === null ? -1 : state.industry;
+    document.getElementById("stage").value = state.stage; document.getElementById("stage-lr").value = state.stageLR;
+    document.getElementById("size").value = state.size; document.getElementById("size-lr").value = state.sizeLR;
+    document.getElementById("func").value = state.func; document.getElementById("func-lr").value = state.funcLR;
+    document.getElementById("tenure").value = state.tenure; document.getElementById("tenure-lr").value = state.tenureLR;
+    document.getElementById("country").value = state.country; document.getElementById("country-lr").value = state.countryLR;
+    buildEvidenceUI();
+    applyDecisionInputsToUI();
+    renderHistory();
+    compute();
+  })();
+
+})();
+</script>
+</body>
+</html>
