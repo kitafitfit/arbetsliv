@@ -5,24 +5,22 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
 	<main>
 		<h1>Naylo's Tools</h1>
+		<p class="tagline">Notes and small models on how minds work — cognition, consciousness, and the frameworks we use to reason about both.</p>
+
+		<h2>Tools</h2>
 		<ul>
 			<li><a href="/tools/bayesian-layoff-prediction">Bayesian Layoff Prediction</a></li>
 		</ul>
+
+		<h2>Writing</h2>
 		<p><a href="/blog">Read the blog →</a></p>
 	</main>
 </Layout>
 
 <style>
-	main {
-		max-width: 700px;
-		margin: 4rem auto;
-		padding: 0 1rem;
-		font-family: system-ui, sans-serif;
-	}
-	h1 {
-		margin-bottom: 1.5rem;
-	}
-	li {
-		margin-bottom: 0.5rem;
+	.tagline {
+		color: var(--ink-soft);
+		font-size: 1.05rem;
+		max-width: 480px;
 	}
 </style>
